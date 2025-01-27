@@ -1,0 +1,7 @@
+# Ignore vim files
+*.swp
+*.swo
+
+# Ignore R cache files
+*.Rhistory
+Rplots.pdf

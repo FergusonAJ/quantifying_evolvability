@@ -1,0 +1,80 @@
+#!/bin/bash --login
+#SBATCH --time=01:00:00
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=1
+#SBATCH --mem-per-cpu=1g
+#SBATCH --job-name (<EXP_NAME>)
+#SBATCH --array=1-100
+#SBATCH --output=(<SCRATCH_SLURM_OUT_DIR>)/slurm-%A_%a.out
+
+IS_MOCK=0
+LOAD_MODULES=1
+while getopts "ml" opt; do
+  case $opt in
+    m)
+     IS_MOCK=1
+      ;;
+    l)
+     LOAD_MODULES=0
+      ;;
+    \?)
+      echo "Invalid option: -$OPTARG" >&2
+      ;;
+  esac
+done
+
+
+# If this is a mocked job 
+if [ ${IS_MOCK} -gt 0 ]
+then
+  if [ -z "${SLURM_ARRAY_TASK_ID}" ]
+  then
+    SLURM_ARRAY_TASK_ID=1
+    echo "SLURM_ARRAY_TASK_ID not defined, setting to ${SLURM_ARRAY_TASK_ID}"
+  fi
+fi
+
+# Load the necessary modules
+if [ ${LOAD_MODULES} -gt 0 ]
+then
+  module purge
+  module load GCC/11.2.0
+  module load OpenMPI/4.1.1
+  module load R/4.1.2
+fi
+
+# Variables, defined by launch script 
+EXP_NAME=(<EXP_NAME>)
+SCRATCH_EXP_DIR=(<SCRATCH_EXP_DIR>)
+SCRATCH_FILE_DIR=(<SCRATCH_FILE_DIR>)
+
+# Use these variables to create a few helper variables
+ZERO_PADDED_TASK_ID=$( ${SCRATCH_FILE_DIR}/zero_pad.sh ${SLURM_ARRAY_TASK_ID} 3 )
+SCRATCH_JOB_DIR=${SCRATCH_EXP_DIR}/reps/${ZERO_PADDED_TASK_ID}
+# Load global helper functions
+. ${SCRATCH_FILE_DIR}/helper_functions.sh
+
+# Calculate the replicate's seed
+SEED_BASE=$( exp_name_to_seed ${EXP_NAME} )
+SEED=$(( ${SEED_BASE} + (${SLURM_ARRAY_TASK_ID} * 10000) ))
+echo "Random seed: ${SEED}: Replicate ID: ${SLURM_ARRAY_TASK_ID}"
+
+# Create replicate-specific directories
+mkdir -p ${SCRATCH_JOB_DIR}
+cd ${SCRATCH_JOB_DIR}
+
+
+######## MAIN ########
+# Do the main experiment for this replicate here
+echo "Starting trial!"
+# Run!
+${SCRATCH_FILE_DIR}/MABE \
+    -f ${SCRATCH_FILE_DIR}/exp_main.mabe \
+    -s random_seed=${SEED}
+
+# Print slurm info if this is not a mock job
+if [ ${IS_MOCK} -eq 0 ]
+then
+  scontrol show job $SLURM_JOB_ID
+fi

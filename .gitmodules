@@ -1,0 +1,6 @@
+[submodule "MABE2"]
+	path = MABE2
+	url = git@github.com:FergusonAJ/MABE2.git
+[submodule "roll_q"]
+	path = roll_q
+	url = git@github.com:FergusonAJ/roll_q
