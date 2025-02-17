@@ -5,3 +5,6 @@
 # Ignore R cache files
 *.Rhistory
 Rplots.pdf
+
+# Ignore vs code files
+.vscode/
