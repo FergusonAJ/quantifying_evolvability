@@ -26,7 +26,7 @@ def parse_input():
     for i in range(N):
         row = []
         for j in range(num_columns):
-            row.append(int(lines[2 + i * num_columns + j]))  
+            row.append(float(lines[2 + i * num_columns + j]))  
         lookup_tables.append(row)  
 
     return N, K, lookup_tables
