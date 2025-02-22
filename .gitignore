@@ -8,3 +8,4 @@ Rplots.pdf
 
 # Ignore vs code files
 .vscode/
+__pycache__
