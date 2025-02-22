@@ -24,4 +24,4 @@ else
 fi
   
 echo "Running with index ${idx}: ${filename}"
-cat ${filename} | python3 landscape_viz.py 
+grep -v "#" ${filename} | python3 landscape_viz.py 
