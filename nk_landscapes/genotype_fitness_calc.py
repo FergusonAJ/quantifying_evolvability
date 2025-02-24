@@ -1,18 +1,19 @@
-def parse_input():
+def parse_input(lines = None):
     """
     Reads input from the user and extracts:
     - N (number of genes)
     - K (number of dependencies per gene)
     - Lookup table (N rows, 2^(K+1) columns)
     """
-    print("Paste input:")
+    if lines is None:
+      print("Paste input:")
 
-    lines = []
-    while True:
-        line = input().strip()
-        if line == "":
-            break
-        lines.append(line)
+      lines = []
+      while True:
+          line = input().strip()
+          if line == "":
+              break
+          lines.append(line)
 
     # Extract N and K
     N = int(lines[0].split('=')[1])  
@@ -30,6 +31,7 @@ def parse_input():
         lookup_tables.append(row)  
 
     return N, K, lookup_tables
+
 
 def generate_bit_combinations(K):
     """

@@ -1,11 +1,28 @@
 import pygame
 import genotype_fitness_calc as nk  
 import math
+import sys
 from helper_funcs import *
 
 class NKLandscape:
-  def __init__(self):
-    self.N, self.K, self.lookup_table = nk.parse_input()
+  def __init__(self, filename=None):
+    if filename is None:
+      self.N, self.K, self.lookup_table = nk.parse_input()
+    else:
+      self.load_file(filename)
+
+  def load_file(self, filename):
+    self.input_file = filename
+    lines = []
+    with open(filename, 'r') as in_fp:
+      for line in in_fp:
+        line = line.strip()
+        if line != '' and line[0] != '#':
+          lines.append(line)
+    lines.append('') # Determines EOF by empty line
+    print(lines)
+    self.N, self.K, self.lookup_table = nk.parse_input(lines)
+
 
   def print_table(self):
     nk.print_lookup_table(self.N, self.K, self.lookup_table)
@@ -19,7 +36,6 @@ class NKLandscape:
     if len(bin_str) < self.N: # Zero pad as needed
       bin_str = '0' * (self.N - len(bin_str)) + bin_str
     return bin_str
-
 
 class Node:
   def __init__(self, x, y, bitstring, fitness):
@@ -35,8 +51,8 @@ class Node:
     return (self.x, self.y)
 
 class VisualizedNKLandscape(NKLandscape):
-  def __init__(self, screen_res):
-    super().__init__()
+  def __init__(self, screen_res, filename=None):
+    super().__init__(filename)
     if not pygame.get_init():
       pygame.init()
     self.screen_res = screen_res
@@ -44,12 +60,14 @@ class VisualizedNKLandscape(NKLandscape):
     self.font = pygame.font.SysFont('ubuntu', 10)
     # Node variables
     self.nodes = None
+    self.needs_regen = True
+    self.needs_change_handled = False
     # Render state variables
     self.needs_refresh = True
-    self.draw_node_color = False
-    self.draw_line_color = False
-    self.draw_bitstrings = False
-    self.draw_fitness = False
+    self.draw_node_color = True
+    self.draw_line_color = True
+    self.draw_bitstrings = True
+    self.draw_fitness = True
     # Other render variables
     self.node_radius = 10
     self.node_color_min = (255,0,0)
@@ -75,6 +93,7 @@ class VisualizedNKLandscape(NKLandscape):
     max_abs_diff = 0
     for node_idx in range(2**self.N):
       fitness = self.calc_fitness(node_idx)
+      print(node_idx, fitness)
       if min_fitness is None or fitness < min_fitness:
         min_fitness = fitness
       if max_fitness is None or fitness > max_fitness:
@@ -92,6 +111,12 @@ class VisualizedNKLandscape(NKLandscape):
           max_abs_diff = max(max_abs_diff, abs(node.fitness - neighbor.fitness))
       self.nodes.append(node)
     # Color nodes after min/max fitness has been found
+    if max_fitness == 0:
+      print('Cannot calc colors because max fitness is 0 (will divide by zero)')
+      self.draw_node_color = False
+      self.draw_line_color = False
+      self.needs_regen = False
+      return
     for node in self.nodes:
       fit_frac = (node.fitness - min_fitness) / (max_fitness - min_fitness)
       node.color = interpolate_color(fit_frac, self.node_color_min, self.node_color_max)
@@ -100,16 +125,28 @@ class VisualizedNKLandscape(NKLandscape):
         frac = abs(diff) / max_abs_diff
         color = (255,255,255)
         if diff < 0:
-          color = interpolate_color(frac, self.line_color_min, (255,255,255))
+          color = interpolate_color(frac, (255,255,255), self.line_color_min)
         if diff > 0:
           color = interpolate_color(frac, (255,255,255), self.line_color_max)
         node.neighbor_line_colors.append(color)
+    self.needs_regen = False
 
   def run(self):
     self.is_running = True
     while self.is_running:
       self.handle_input()
+      if self.needs_change_handled:
+        self.handle_value_change()
+      if self.needs_regen:
+        self.regen_nodes()
       self.render()
+
+  def long_print(self):
+    print('N=' + str(self.N))
+    print('K=' + str(self.K))
+    for row in self.lookup_table:
+      for col in row:
+        print(col)
  
   def handle_input(self):
     for evt in pygame.event.get():
@@ -130,6 +167,31 @@ class VisualizedNKLandscape(NKLandscape):
         elif evt.key == pygame.K_l:
           self.draw_line_color = not self.draw_line_color
           self.needs_refresh = True
+        elif evt.key == pygame.K_s:
+          self.needs_change_handled = True
+        elif evt.key == pygame.K_p:
+          self.long_print()
+  
+  def handle_value_change(self):
+    self.needs_regen = True
+    self.needs_refresh = True
+    self.needs_change_handled = False
+    print('Format: row col value [s]')
+    print('(row and col should be the integer index (0-based))')
+    print('(the s is optional and will retrigger this prompt)')
+    line = input()
+    parts = line.strip().split()
+    if len(parts) != 3 and not (len(parts) == 4 and parts[3] == 's'):
+      print('Error! Expecting three numbers. Aborting change')
+      print('The only alternative is for a fourth parameter, s')
+      return
+    row = int(parts[0])
+    col = int(parts[1])
+    new_val = float(parts[2])
+    self.lookup_table[row][col] = new_val
+    if len(parts) == 4 and parts[3] == 's':
+      self.needs_change_handled = True
+    self.print_table()
 
   def render_nodes(self):
     for node in self.nodes:
@@ -169,7 +231,9 @@ class VisualizedNKLandscape(NKLandscape):
       'n to toggle node color', 
       'l to toggle line color', 
       'b to toggle node bitstrings',
-      'n to toggle node fitnesses'
+      'n to toggle node fitnesses',
+      's to change a value in the table',
+      'p to print table'
       ], (0, self.screen_res[1]), (0, -12))
 
   def render(self):
@@ -182,8 +246,10 @@ class VisualizedNKLandscape(NKLandscape):
       pygame.display.flip()
       self.needs_refresh = False
 
-
-landscape = VisualizedNKLandscape([800,600])
+filename = None
+if len(sys.argv) > 1:
+  filename = sys.argv[1]
+landscape = VisualizedNKLandscape([800,600], filename)
 landscape.print_table()
 landscape.run()
 
