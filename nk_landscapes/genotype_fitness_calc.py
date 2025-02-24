@@ -26,7 +26,7 @@ def parse_input():
     for i in range(N):
         row = []
         for j in range(num_columns):
-            row.append(int(lines[2 + i * num_columns + j]))  
+            row.append(float(lines[2 + i * num_columns + j]))  
         lookup_tables.append(row)  
 
     return N, K, lookup_tables
@@ -78,7 +78,10 @@ def generate_interactions(N, K):
     for i in range(N):
         indices = []
         for j in range(K + 1):
-            indices.append((i + j) % N)  
+            # Read from right to left (bit 0 is far right, bit 1 is one to the left, etc)
+            first_index = N - (1 + i + K)
+            index = (first_index + j) % N
+            indices.append(index)
         interactions.append(indices)
     return interactions
 
