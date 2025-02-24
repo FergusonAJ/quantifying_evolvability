@@ -58,6 +58,7 @@ class VisualizedNKLandscape(NKLandscape):
     self.screen_res = screen_res
     self.screen = pygame.display.set_mode(self.screen_res)
     self.font = pygame.font.SysFont('ubuntu', 10)
+    self.clock = pygame.time.Clock()
     # Node variables
     self.nodes = None
     self.needs_regen = True
@@ -68,6 +69,7 @@ class VisualizedNKLandscape(NKLandscape):
     self.draw_line_color = True
     self.draw_bitstrings = True
     self.draw_fitness = True
+    self.draw_index = False
     # Other render variables
     self.node_radius = 10
     self.node_color_min = (255,0,0)
@@ -140,6 +142,7 @@ class VisualizedNKLandscape(NKLandscape):
       if self.needs_regen:
         self.regen_nodes()
       self.render()
+      self.clock.tick(60)
 
   def long_print(self):
     print('N=' + str(self.N))
@@ -157,6 +160,7 @@ class VisualizedNKLandscape(NKLandscape):
           self.is_running = False
         elif evt.key == pygame.K_b:
           self.draw_bitstrings = not self.draw_bitstrings
+          self.draw_index = False
           self.needs_refresh = True
         elif evt.key == pygame.K_f:
           self.draw_fitness = not self.draw_fitness
@@ -171,6 +175,10 @@ class VisualizedNKLandscape(NKLandscape):
           self.needs_change_handled = True
         elif evt.key == pygame.K_p:
           self.long_print()
+        elif evt.key == pygame.K_i:
+          self.draw_index = not self.draw_index
+          self.draw_bitstrings = False
+          self.needs_refresh = True
   
   def handle_value_change(self):
     self.needs_regen = True
@@ -207,6 +215,12 @@ class VisualizedNKLandscape(NKLandscape):
       pygame.draw.circle(self.screen, color, node.get_pos(), self.node_radius)
       if self.draw_bitstrings:
         surf = self.font.render(node.bitstring, True, (255,255,255))
+        rect = surf.get_rect()
+        rect.center = (node.x, int(node.y - self.node_radius * 1.5))
+        self.screen.blit(surf, rect)
+      if self.draw_index:
+        index = int(node.bitstring, 2)
+        surf = self.font.render(str(index), True, (255,255,255))
         rect = surf.get_rect()
         rect.center = (node.x, int(node.y - self.node_radius * 1.5))
         self.screen.blit(surf, rect)
@@ -249,7 +263,7 @@ class VisualizedNKLandscape(NKLandscape):
 filename = None
 if len(sys.argv) > 1:
   filename = sys.argv[1]
-landscape = VisualizedNKLandscape([800,600], filename)
+landscape = VisualizedNKLandscape([1200,800], filename)
 landscape.print_table()
 landscape.run()
 
