@@ -1,7 +1,7 @@
 L = [0] * (2**6)
 
 # Neutral basin around start
-for i in [0, 1, 2, 4, 8, 16, 32, 5, 9, 12, 18, 20, 33, 36]:
+for i in [0]:
   L[i] = 10
 
 # Neutral path to global optimum
