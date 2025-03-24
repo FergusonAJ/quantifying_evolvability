@@ -39,8 +39,6 @@ then
   echo "[VERBOSE]     Scratch reps dir: ${SCRATCH_REP_DIR}"
 fi
 
-output_file=../combined_final_fitness_data.csv
-echo "rep_id,trial_id,starting_index,landscape_seed,avg_fitness,max_fitness,dom_fitness" > ${output_file}
 for dir_name in $( ls ${SCRATCH_REP_DIR} | sort)
 do
     full_path=${SCRATCH_REP_DIR}/${dir_name}
