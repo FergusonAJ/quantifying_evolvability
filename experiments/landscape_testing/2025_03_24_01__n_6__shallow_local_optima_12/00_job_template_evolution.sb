@@ -5,7 +5,7 @@
 #SBATCH --cpus-per-task=1
 #SBATCH --mem-per-cpu=1g
 #SBATCH --job-name (<EXP_NAME>)
-#SBATCH --array=1-100
+#SBATCH --array=1-50
 #SBATCH --output=(<SCRATCH_SLURM_OUT_DIR>)/slurm-%A_%a.out
 
 IS_MOCK=0
@@ -67,7 +67,7 @@ cd ${SCRATCH_JOB_DIR}
 
 ######## MAIN ########
 # Do the main experiment for this replicate here
-num_trials=100
+num_trials=10
 for trial_id in $(seq 1 $num_trials)
 do
     trial_seed=$(($SEED + $trial_id))

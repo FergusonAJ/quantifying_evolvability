@@ -5,7 +5,7 @@ Var pop_size = 1000;            // Number of organisms to evaluate in the popula
 Var num_bits = 6;               // Number of bits in each organism (and the NK landscape)
 Var ruggedness = num_bits - 1;
 Var num_gens = 1000;
-Var starting_index = 48, 56;
+Var starting_index = 0;
 Var landscape_to_load = "../../shared_files/landscape_data.csv";
 
 Population main_pop;            // Main population for managing candidate solutions.
