@@ -11,8 +11,7 @@ if(!dir.exists(processed_data_dir)){
 num_bits = 6
 
 df_evo = read.csv('../data/combined_final_fitness_data.csv')
-df_fitness = read.csv('../data/genotype_fitness.csv', header=F, col.names = 'fitness')
-df_fitness$genotype = 0:(nrow(df_fitness)-1)
+df_fitness = read.csv('../data/genotype_fitnesses.csv')
 
 df_summary = 
   dplyr::group_by(df_evo, landscape_seed, starting_index) %>%
