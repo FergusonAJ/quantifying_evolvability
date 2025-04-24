@@ -76,6 +76,8 @@ class VisualizedNKLandscape(NKLandscape):
     self.node_color_max = (0,0,255)
     self.line_color_min = (255,0,0)
     self.line_color_max = (0,255,0)
+    self.bg_color = (255,255,255)
+    self.font_color = (0,0,0)
     self.line_max_threshold = 2
     self.line_min_threshold = 0.5
   
@@ -175,6 +177,8 @@ class VisualizedNKLandscape(NKLandscape):
           self.needs_change_handled = True
         elif evt.key == pygame.K_p:
           self.long_print()
+        elif evt.key == pygame.K_t:
+          self.save_to_file('out.png')
         elif evt.key == pygame.K_i:
           self.draw_index = not self.draw_index
           self.draw_bitstrings = False
@@ -209,23 +213,23 @@ class VisualizedNKLandscape(NKLandscape):
           color = node.neighbor_line_colors[neighbor_idx]
         pygame.draw.line(self.screen, color, node.get_pos(), neighbor.get_pos(), 1)
     for node in self.nodes:
-      color = (255,255,255)
+      color = self.font_color
       if self.draw_node_color:
         color = node.color
       pygame.draw.circle(self.screen, color, node.get_pos(), self.node_radius)
       if self.draw_bitstrings:
-        surf = self.font.render(node.bitstring, True, (255,255,255))
+        surf = self.font.render(node.bitstring, True, self.font_color)
         rect = surf.get_rect()
         rect.center = (node.x, int(node.y - self.node_radius * 1.5))
         self.screen.blit(surf, rect)
       if self.draw_index:
         index = int(node.bitstring, 2)
-        surf = self.font.render(str(index), True, (255,255,255))
+        surf = self.font.render(str(index), True, self.font_color)
         rect = surf.get_rect()
         rect.center = (node.x, int(node.y - self.node_radius * 1.5))
         self.screen.blit(surf, rect)
       if self.draw_fitness:
-        surf = self.font.render(str(round(node.fitness, 2)), True, (255,255,255))
+        surf = self.font.render(str(round(node.fitness, 2)), True, self.font_color)
         rect = surf.get_rect()
         rect.center = (node.x, int(node.y + self.node_radius * 1.5))
         self.screen.blit(surf, rect)
@@ -233,7 +237,7 @@ class VisualizedNKLandscape(NKLandscape):
   def render_repeated_lines(self, lines, start_pos, pos_step):
     start_pos = list(start_pos)
     for line in lines:
-      surf = self.font.render(line, True, (255,255,255))
+      surf = self.font.render(line, True, self.font_color)
       rect = surf.get_rect()
       rect.bottomleft = start_pos
       self.screen.blit(surf, rect)
@@ -252,13 +256,16 @@ class VisualizedNKLandscape(NKLandscape):
 
   def render(self):
     if self.needs_refresh:
-      self.screen.fill((0,0,0))
+      self.screen.fill(self.bg_color)
       if self.nodes is None:
         self.regen_nodes()
       self.render_nodes()
       self.render_controls()
       pygame.display.flip()
       self.needs_refresh = False
+
+  def save_to_file(self, filename):
+    pygame.image.save(self.screen, filename)
 
 filename = None
 if len(sys.argv) > 1:
