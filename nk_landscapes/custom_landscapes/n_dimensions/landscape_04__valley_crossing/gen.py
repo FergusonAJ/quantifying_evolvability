@@ -11,9 +11,9 @@ def count_ones(n):
 # Create gradient
 for i in range(0, 64):
   num_ones = count_ones(i)
-  if num_ones == 0 or num_ones == 4:
-    L[i] = 1.1 ** abs(2 - num_ones)
-  elif num_ones > 4:
+  if num_ones == 0:
+    L[i] = 1
+  elif num_ones >= 4:
     L[i] = 1.1 ** 2
   else:
     L[i] = 0.95 ** num_ones
