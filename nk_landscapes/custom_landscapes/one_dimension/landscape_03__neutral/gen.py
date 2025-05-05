@@ -8,7 +8,7 @@ L[1] = 1
 L[3] = 1
 
 # Local optima
-L[7] = 1
+L[7] = 1.1 ** 3
 
 # Adaptive path to global optimum
 L[32] = 1
