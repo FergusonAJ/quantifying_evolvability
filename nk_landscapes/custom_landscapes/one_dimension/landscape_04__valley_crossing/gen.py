@@ -10,7 +10,7 @@ L[48] = 0.95 ** 2
 L[56] = 0.95 ** 3
 
 # Global optimum
-L[60] = 1.25
+L[60] = 1.1 ** 4
 
 for x in L:
   print(x)

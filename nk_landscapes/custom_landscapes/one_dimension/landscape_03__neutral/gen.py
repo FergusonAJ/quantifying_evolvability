@@ -18,7 +18,7 @@ L[60] = 1
 L[62] = 1
 
 # Global optimum
-L[63] = 1.1 ** 5
+L[63] = 1.1 ** 6
 
 for x in L:
   print(x)
