@@ -58,7 +58,7 @@ for(genotype in unique(df_evo$starting_index)){
     neighbor_max_fitness = df_evo[df_evo$starting_index == neighbor_genotype,]$max_fitness
     if(length(genotype_max_fitness) != length(neighbor_max_fitness)) next
     res = wilcox.test(genotype_max_fitness, neighbor_max_fitness, alternative = 'greater')
-    if(sum(genotype_max_fitness) == sum(neighbor_max_fitness)){
+    if(sum(genotype_max_fitness == neighbor_max_fitness) == 64){
       df_pairwise[nrow(df_pairwise) + 1,] = 
         c(genotype, neighbor_genotype, mean(genotype_max_fitness), mean(neighbor_max_fitness), sd(genotype_max_fitness), sd(neighbor_max_fitness),
           1, NA, starting_fitness_a, starting_fitness_b)

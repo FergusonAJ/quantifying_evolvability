@@ -30,7 +30,7 @@ x_map = c(
   '56' = 3,
   '60' = 4,
   '62' = 5,
-  '63' = 6
+  '63' =6
 )
 
 df_trimmed$genotype_a_x = 0
@@ -76,12 +76,7 @@ if(sum(df_trimmed$is_signif) > 0){
   df_trimmed[df_trimmed$adj_p < 0.001,]$signif_marker = '***'
   df_trimmed[df_trimmed$adj_p < 0.001,]$signif_text = 'p < 0.001'
 }
-
-df_trimmed$x_min = df_trimmed$genotype_b_x + 0.1
-df_trimmed[df_trimmed$genotype_b_x > df_trimmed$genotype_a_x,]$x_min = df_trimmed[df_trimmed$genotype_b_x > df_trimmed$genotype_a_x,]$x_min - 0.2
-df_trimmed$x_max = df_trimmed$genotype_a_x - 0.1
-df_trimmed[df_trimmed$genotype_b_x > df_trimmed$genotype_a_x,]$x_max = df_trimmed[df_trimmed$genotype_b_x > df_trimmed$genotype_a_x,]$x_max + 0.2
- 
+  
 ggplot(df_trimmed) + 
   geom_segment(aes(x = genotype_a_x, xend = genotype_b_x, y = starting_fitness_a_norm, yend = starting_fitness_b_norm)) + 
   geom_point(aes(x = genotype_a_x, y = starting_fitness_a_norm))  +
@@ -103,7 +98,7 @@ ggplot(df_trimmed) +
                aes(x = genotype_a_x, xend = genotype_b_x, y = avg_fitness_a_norm, yend = avg_fitness_b_norm, color = 'Average evolved fitness (N=100)'), linetype='dashed') + 
   #geom_errorbar(aes(x = genotype_a_x, ymin = avg_fitness_a_norm - sd_fitness_a_norm, ymax = avg_fitness_a_norm + sd_fitness_a_norm, color = 'Average evolved fitness')) + 
   geom_point(aes(x = genotype_a_x, y = avg_fitness_a_norm, color = 'Average evolved fitness (N=100)')) + 
-  geom_segment(data=df_trimmed[df_trimmed$is_signif,], aes(x = x_min, xend = x_max, y = 0.9, yend = 0.9), 
+  geom_segment(data=df_trimmed[df_trimmed$is_signif,], aes(x = genotype_b_x + 0.1, xend = genotype_a_x - 0.1, y = 0.9, yend = 0.9), 
               color = 'red',
               arrow=arrow(type = 'closed', length = unit(0.35, 'cm'))) + 
   geom_text(data = df_trimmed[df_trimmed$is_signif,], aes(x = text_x, y = 0.8, label = signif_marker)) + 
@@ -119,5 +114,6 @@ ggplot(df_trimmed) +
   theme(panel.grid = element_line(color = '#dddddd'))
 ggsave(paste0(plot_dir, '/summary_plot.pdf'), units = 'in', width = 6.5, height = 4.5)
 ggsave(paste0(plot_dir, '/summary_plot.png'), units = 'in', width = 6.5, height = 4.5)
+
 
 
