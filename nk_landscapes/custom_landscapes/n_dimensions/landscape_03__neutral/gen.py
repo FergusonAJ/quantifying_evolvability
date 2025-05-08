@@ -14,7 +14,7 @@ for i in range(0, 64):
   if num_ones == 0 or num_ones == 6:
     L[i] = 1.1 ** abs(2 - num_ones)
   else:
-    L[i] = 0
+    L[i] = 1
 
 for x in L:
   print(x)
