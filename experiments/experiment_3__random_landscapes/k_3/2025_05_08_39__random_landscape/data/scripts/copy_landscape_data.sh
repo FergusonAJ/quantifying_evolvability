@@ -47,6 +47,8 @@ do
         continue
     fi
     cp ${full_path}/generated_landscape_data.csv ..
-    grep -v "#" ../generated_landscape_data.csv | python3 ${REPO_ROOT_DIR}/nk_landscapes/genotype_fitness_calc.py | tail -n +15 > ../genotype_fitnesses.csv
+    output_file=../genotype_fitnesses.csv
+    echo "genotype,fitness" > ${output_file}
+    grep -v "#" ../generated_landscape_data.csv | python3 ${REPO_ROOT_DIR}/nk_landscapes/genotype_fitness_calc.py | tail -n +14 >> ${output_file}
     break
 done

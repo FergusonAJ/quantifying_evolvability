@@ -5,7 +5,7 @@
 #SBATCH --cpus-per-task=1
 #SBATCH --mem-per-cpu=1g
 #SBATCH --job-name (<EXP_NAME>)
-#SBATCH --array=1-64
+#SBATCH --array=0-63
 #SBATCH --output=(<SCRATCH_SLURM_OUT_DIR>)/slurm-%A_%a.out
 
 IS_MOCK=0
@@ -68,7 +68,8 @@ cd ${SCRATCH_JOB_DIR}
 ######## MAIN ########
 # Do the main experiment for this replicate here
 num_trials=100
-landscape_seed=${SEED_BASE}
+#landscape_seed=${SEED_BASE}
+landscape_seed=$(echo ${EXP_NAME} | grep -oP "\d\d_\d\d__" | sed -E "s/_//g")
 starting_index=${SLURM_ARRAY_TASK_ID}
 combined_file=./combined_final_data.csv
 echo "rep_id,trial_id,starting_index,landscape_seed,avg_fitness,max_fitness,dom_fitness,final_max_org_fitness,final_max_org_genotype" > $combined_file
