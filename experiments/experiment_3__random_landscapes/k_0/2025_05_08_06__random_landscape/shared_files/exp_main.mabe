@@ -1,0 +1,77 @@
+// This is just a pared down version of NK.mabe for demonstration purposes
+
+random_seed = 0;                // Seed for random number generator; use 0 to base on time.
+Var pop_size = 1000;            // Number of organisms to evaluate in the population.
+Var num_bits = 6;               // Number of bits in each organism (and the NK landscape)
+Var ruggedness = 0;
+Var num_gens = 1000;
+Var starting_index = 0;
+Var landscape_seed = 0;
+
+Population main_pop;            // Main population for managing candidate solutions.
+Population next_pop;            // Temp. population while constructing the next generation.
+
+BitsOrg bits_org {              // Organism consisting of a series of N bits.
+  output_name = "bits";         // Name of variable to contain bit sequence.
+  N = num_bits;                 // Number of bits in organism
+  mut_prob = 0.001;             // Probability of each bit mutating on reproduction.
+  init_random = 1;              // Should we randomize ancestor?  (0 = all zeros)
+};
+
+EvalNK eval_nk {                // Evaluate bitstrings on an NK fitness lanscape.
+  N = num_bits;                 // Number of bits required in output
+  K = ruggedness;               // Number of bits used in each gene
+  bits_trait = "bits";          // Which trait stores the bit sequence to evaluate?
+  fitness_trait = "fitness";    // Which trait should we store NK fitness in?
+};
+
+SelectRoulette roulette {   // Select the top fitness organisms from random subgroups for replication.
+  fitness_fun = "fitness";      // Which trait provides the fitness value to use?
+};
+
+StringUtils str_utils;
+
+DataFile fit_file { filename="fitness.csv"; };
+fit_file.ADD_COLUMN( "Average Fitness", "main_pop.CALC_MEAN('fitness')" );
+fit_file.ADD_COLUMN( "Maximum Fitness", "main_pop.CALC_MAX('fitness')" );
+fit_file.ADD_COLUMN( "Dominant Fitness", "main_pop.CALC_MODE('fitness')" );
+
+DataFile max_file { filename="max_org.csv"; };
+OrgList best_org;
+max_file.ADD_SETUP( "best_org = main_pop.FIND_MAX('fitness')" );
+max_file.ADD_COLUMN( "Fitness", "best_org.TRAIT('fitness')" );
+max_file.ADD_COLUMN( "Genome", "best_org.TRAIT('bits')" );
+
+
+@START() {
+  PRINT("random_seed = ", random_seed, "\n");  // Print seed at run start.
+  PRINT("landscape_seed = ", landscape_seed, "\n");  // Print seed at run start.
+  PRINT("starting_index = ", starting_index, "\n");  // Print seed at run start.
+  eval_nk.RESET_WITH_SEED(landscape_seed);
+  eval_nk.WRITE_TO_FILE("generated_landscape_data.csv");
+  Var bitstring = str_utils.CONVERT_TO_BITSTRING(starting_index, num_bits);
+  main_pop.INJECT("bits_org", pop_size);       // Inject starting population.
+  Var index = 0;
+  WHILE(index < pop_size){
+    main_pop.SET_GENOME(index, bitstring);
+    index = index + 1;
+  }
+}
+
+// Actions to perform every update.
+@UPDATE(Var ud) {
+  IF (ud == num_gens) EXIT();
+
+  eval_nk.EVAL(main_pop);
+  PRINT("UD:", GET_UPDATE(),
+        "  MainPopSize=", main_pop.SIZE(),
+        "  AveFitness=", main_pop.CALC_MEAN("fitness"),
+        "  MaxFitness=", main_pop.CALC_MAX("fitness")
+       );
+  fit_file.WRITE();
+  max_file.WRITE();
+
+  roulette.SELECT(main_pop, next_pop, pop_size);
+
+  main_pop.REPLACE_WITH(next_pop);
+}
