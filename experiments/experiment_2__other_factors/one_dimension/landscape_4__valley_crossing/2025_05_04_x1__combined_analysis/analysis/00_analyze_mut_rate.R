@@ -17,15 +17,15 @@ df_base$mut_prob = 0.001
 df_base$pop_size = 1000
 df_base$condition_num = 3
 
-df_mut_low = read.csv('../../2025_05_04_41__mut_0_0005/data/pairwise_data.csv')
-df_mut_low$mut_prob = 0.0005
-df_mut_low$pop_size = 1000
-df_mut_low$condition_num = 1
-
 df_mut_very_low = read.csv('../../2025_05_04_42__mut_0_0001/data/pairwise_data.csv')
 df_mut_very_low$mut_prob = 0.0001
 df_mut_very_low$pop_size = 1000
-df_mut_very_low$condition_num = 2
+df_mut_very_low$condition_num = 1
+
+df_mut_low = read.csv('../../2025_05_04_41__mut_0_0005/data/pairwise_data.csv')
+df_mut_low$mut_prob = 0.0005
+df_mut_low$pop_size = 1000
+df_mut_low$condition_num = 2
 
 df_mut_high = read.csv('../../2025_05_04_43__mut_0_005/data/pairwise_data.csv')
 df_mut_high$mut_prob = 0.005

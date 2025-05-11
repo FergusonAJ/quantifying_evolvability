@@ -7,6 +7,12 @@ if(!dir.exists(plot_dir)){
   dir.create(plot_dir)
 }
 
+data_dir = '../data'
+if(!dir.exists(data_dir)){
+  dir.create(data_dir)
+}
+
+
 df_base = read.csv('../../2025_05_04_20__base/data/pairwise_data.csv')
 df_base$mut_prob = 0.001
 df_base$pop_size = 1000
@@ -92,6 +98,12 @@ df_combined$x_min = df_combined$genotype_b_x + 0.1
 df_combined[df_combined$genotype_b_x > df_combined$genotype_a_x,]$x_min = df_combined[df_combined$genotype_b_x > df_combined$genotype_a_x,]$x_min - 0.2
 df_combined$x_max = df_combined$genotype_a_x - 0.1
 df_combined[df_combined$genotype_b_x > df_combined$genotype_a_x,]$x_max = df_combined[df_combined$genotype_b_x > df_combined$genotype_a_x,]$x_max + 0.2
+df_combined$y =  1 - df_combined$condition_num * 0.05
+df_combined$text_y = df_combined$y - 0.04
+
+output_filename = paste0(data_dir, '/pop_size_combined_data.csv')
+write.csv(df_combined, output_filename, row.names = F)
+cat('Saving combined data to:', output_filename, '\n')
  
 theme_set(theme_cowplot())
 
@@ -99,19 +111,14 @@ ggplot(df_combined) +
   geom_segment(data=df_combined[df_combined$pop_size == 1000 & df_combined$mut_prob == 0.001,], aes(x = genotype_a_x, xend = genotype_b_x, y = starting_fitness_a_norm, yend = starting_fitness_b_norm, color = 'Starting fitness'), size = 1.1) + 
   geom_point(aes(x = genotype_a_x, y = starting_fitness_a_norm, color = 'Starting fitness'), size = 2)  +
   geom_segment(data=df_combined[df_combined$genotype_a_x < df_combined$genotype_b_x,], 
-               #aes(x = genotype_a_x, xend = genotype_b_x, y = avg_fitness_a_norm, yend = avg_fitness_b_norm, color = 'Average evolved fitness (N=100)'), linetype='solid') + 
                aes(x = genotype_a_x, xend = genotype_b_x, y = avg_fitness_a_norm, yend = avg_fitness_b_norm, color = pop_size_factor), linetype='solid', size = 1.1) + 
-  #geom_errorbar(aes(x = genotype_a_x, ymin = avg_fitness_a_norm - sd_fitness_a_norm, ymax = avg_fitness_a_norm + sd_fitness_a_norm, color = 'Average evolved fitness')) + 
-  #geom_point(aes(x = genotype_a_x, y = avg_fitness_a_norm, color = 'Average evolved fitness (N=100)')) + 
   geom_point(aes(x = genotype_a_x, y = avg_fitness_a_norm, color = pop_size_factor), size = 2) + 
-  geom_segment(data=df_combined[df_combined$is_signif,], aes(x = x_min, xend = x_max, y = 1 - condition_num * 0.06, yend = 1 - condition_num * 0.06, color = pop_size_factor), 
+  geom_segment(data=df_combined[df_combined$is_signif,], aes(x = x_min, xend = x_max, y = y, yend = y, color = pop_size_factor), 
               arrow=arrow(type = 'closed', length = unit(0.25, 'cm')), show.legend = F, size = 1.1) + 
-  geom_text(data = df_combined[df_combined$is_signif,], aes(x = text_x - 0.05, y = 0.96 - condition_num * 0.06, label = signif_marker, color = pop_size_factor), show.legend = F, size = 6) + 
-  #geom_text(data = df_combined[df_combined$is_signif,], aes(x = text_x, y = 0.75, label = signif_text)) + 
+  geom_text(data = df_combined[df_combined$is_signif,], aes(x = text_x - 0.05, y = text_y, label = signif_marker, color = pop_size_factor), show.legend = F, size = 6) + 
   xlab('Genotype') + 
   ylab('Fitness') + 
   labs(color = '') +
-  #scale_color_manual(values = c('Starting fitness' = '#000000', 'Average evolved fitness (N=100)' = '#ff0000')) +
   scale_color_manual(values = color_map) + 
   scale_y_continuous(limits = c(0.88, 1.8), breaks = c(1, 1.25, 1.5, 1.75), minor_breaks = c(1, 1.125, 1.25, 1.375, 1.5, 1.625, 1.75)) + 
   scale_x_continuous(limits = c(0, 6), breaks = -4:6, minor_breaks = -1:6) +

@@ -17,15 +17,15 @@ df_base$mut_prob = 0.001
 df_base$pop_size = 1000
 df_base$condition_num = 3
 
-df_mut_low = read.csv('../../2025_05_04_31__mut_0_0005/data/pairwise_data.csv')
-df_mut_low$mut_prob = 0.0005
-df_mut_low$pop_size = 1000
-df_mut_low$condition_num = 1
-
 df_mut_very_low = read.csv('../../2025_05_04_32__mut_0_0001/data/pairwise_data.csv')
 df_mut_very_low$mut_prob = 0.0001
 df_mut_very_low$pop_size = 1000
-df_mut_very_low$condition_num = 2
+df_mut_very_low$condition_num = 1
+
+df_mut_low = read.csv('../../2025_05_04_31__mut_0_0005/data/pairwise_data.csv')
+df_mut_low$mut_prob = 0.0005
+df_mut_low$pop_size = 1000
+df_mut_low$condition_num = 2
 
 df_mut_high = read.csv('../../2025_05_04_33__mut_0_005/data/pairwise_data.csv')
 df_mut_high$mut_prob = 0.005
@@ -81,7 +81,7 @@ df_combined$sd_fitness_b_norm = df_combined$fitness_sd_b / fitness_baseline
 df_combined$is_signif = df_combined$adj_p < 0.05
 df_combined$signif_marker = ''
 df_combined$signif_text = paste0('p=', round(df_combined$adj_p, 3))
-df_combined$text_x = (df_combined$genotype_a_x + df_combined$genotype_b_x) / 2 - 0.05
+df_combined$text_x = (df_combined$genotype_a_x + df_combined$genotype_b_x) / 2 
 if(sum(df_combined$is_signif) > 0){
   df_combined[df_combined$adj_p < 0.05,]$signif_marker = '*'
   df_combined[df_combined$adj_p < 0.01,]$signif_marker = '**'
