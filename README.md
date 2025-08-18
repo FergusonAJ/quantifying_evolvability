@@ -1,7 +1,4 @@
-# Submission for ALife 2025
-
-When de-anonymized, this supplement will be given a much nicer webpage format for easier navigation. 
-For now, it is left as a GitHub repo. 
+# A computational baseline for changes in long-term evolvability (ALife 2025)
 
 Generally, all files of interests can be found in the `experiments` directory. 
 Within `experiments`, subdirectories allow for navigation to specific experiments (those outside experiments 1, 2, and 3 were exploratory). 
